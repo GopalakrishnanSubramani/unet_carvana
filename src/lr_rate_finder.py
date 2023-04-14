@@ -93,7 +93,7 @@ class LearningRateFinder:
         plt.title("Loss vs Learning rate")
         plt.xlabel("Learning rate (log scale)")
         plt.ylabel("Loss (exponential moving average)")
-        plt.show()
+        plt.savefig('lr.png')
 
     def reset(self):
         """
