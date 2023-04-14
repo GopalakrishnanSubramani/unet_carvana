@@ -1,7 +1,7 @@
 import numpy as np
 from skimage.transform import resize
 from transformations import ComposeDouble, FunctionWrapperDouble, create_dense_target, normalize_01, AlbuSeg2d
-from dataset import SegmentationDataset
+from dataset_cache import SegmentationDataset
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 import pathlib
@@ -18,10 +18,8 @@ def get_filenames_of_path(path: pathlib.Path, ext: str = '*'):
 inputs = get_filenames_of_path(root / 'Input')
 targets = get_filenames_of_path(root / 'Target')
 
-print(len(inputs))
-
-# training transformations and augmentations
-transforms_training = ComposeDouble([
+# pre-transformations
+pre_transforms = ComposeDouble([
     FunctionWrapperDouble(resize,
                           input=True,
                           target=False,
@@ -33,6 +31,10 @@ transforms_training = ComposeDouble([
                           order=0,
                           anti_aliasing=False,
                           preserve_range=True),
+])
+
+# training transformations and augmentations
+transforms_training = ComposeDouble([
     AlbuSeg2d(albumentations.HorizontalFlip(p=0.5)),
     FunctionWrapperDouble(create_dense_target, input=False, target=True),
     FunctionWrapperDouble(np.moveaxis, input=True, target=False, source=-1, destination=0),
@@ -41,17 +43,6 @@ transforms_training = ComposeDouble([
 
 # validation transformations
 transforms_validation = ComposeDouble([
-    FunctionWrapperDouble(resize,
-                          input=True,
-                          target=False,
-                          output_shape=(128, 128, 3)),
-    FunctionWrapperDouble(resize,
-                          input=False,
-                          target=True,
-                          output_shape=(128, 128),
-                          order=0,
-                          anti_aliasing=False,
-                          preserve_range=True),
     FunctionWrapperDouble(create_dense_target, input=False, target=True),
     FunctionWrapperDouble(np.moveaxis, input=True, target=False, source=-1, destination=0),
     FunctionWrapperDouble(normalize_01)
@@ -77,11 +68,16 @@ targets_train, targets_valid = train_test_split(
 
 dataset_train = SegmentationDataset(inputs=inputs_train,
                                     targets=targets_train,
-                                    transform=transforms_training)
+                                    transform=transforms_training,
+                                    use_cache=True,
+                                    pre_transform=pre_transforms
+                                    )
 
 dataset_valid = SegmentationDataset(inputs=inputs_valid,
                                     targets=targets_valid,
-                                    transform=transforms_validation)
+                                    transform=transforms_validation,
+                                    use_cache=True,
+                                    pre_transform=pre_transforms)
 
 dataloader_training = DataLoader(dataset=dataset_train,batch_size=2,shuffle=True)
 dataloader_validation = DataLoader(dataset=dataset_valid, batch_size=2,shuffle=False)

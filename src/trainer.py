@@ -2,6 +2,7 @@ from typing import Optional
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from tqdm import tqdm,trange
 
 class Trainer:
     def __init__(self,
@@ -32,10 +33,10 @@ class Trainer:
         self.learning_rate = []
 
     def run_trainer(self):
-        if self.notebook:
-            from tqdm.notebook import tqdm, trange
-        else:
-            from tqdm import tqdm, trange
+        # if self.notebook:
+        #     from tqdm.notebook import tqdm, trange
+        # else:
+        #     from tqdm import tqdm, trange
         
         progressbar = trange(self.epochs, desc="Progress")
         for i in progressbar:
@@ -58,10 +59,10 @@ class Trainer:
         return self.training_loss, self.validation_loss, self.learning_rate
     
     def _train(self):
-        if self.notebook:
-            from tqdm.notebook import tqdm, trange
-        else:
-            from tqdm import tqdm, trange
+        # if self.notebook:
+        #     from tqdm.notebook import tqdm, trange
+        # else:
+        #     from tqdm import tqdm,trange
         
         self.model.train()
         train_losses = []
@@ -79,7 +80,7 @@ class Trainer:
             self.optimizer.zero_grad() 
             out = self.model(input_x)
             loss = self.criterion(out, target_y)
-            loss_value = self.item()
+            loss_value = loss.item()
             train_losses.append(loss_value)
             loss.backward()
             self.optimizer.step()
@@ -95,10 +96,10 @@ class Trainer:
     
     def _validate(self):
 
-        if self.notebook:
-            from tqdm.notebook import tqdm, trange
-        else:
-            from tqdm import tqdm, trange
+        # if self.notebook:
+        #     from tqdm.notebook import tqdm, trange
+        # else:
+        #     from tqdm import tqdm, trange
 
         self.model.eval()
         valid_losses = []
@@ -125,6 +126,3 @@ class Trainer:
         self.validation_loss.append(np.mean(valid_losses))
 
         batch_iter.close()
-
-
-
