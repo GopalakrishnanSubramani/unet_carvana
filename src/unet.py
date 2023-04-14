@@ -534,7 +534,17 @@ if __name__ == "__main__":
         dim=Dimensions.TWO,
         up_mode=UpMode.TRANSPOSED,
     )
-    from torchinfo import summary
 
+
+if __name__ == "__main__":
+    # from torchinfo import summary
     # [B, C, H, W]
-    summary = summary(model=unet, input_size=(1, 1, 512, 512), device="cpu")
+    # summary = summary(model=unet, input_size=(1, 1, 512, 512), device="cpu")
+
+    model = UNet(1,2,4,32,activation='relu', normalization='batch', conv_mode='same',dim=2)
+
+    x=torch.randn(size=(1,1,512,512), dtype=torch.float32)
+    with torch.no_grad():
+        out=model(x)
+    print(out.shape)
+
