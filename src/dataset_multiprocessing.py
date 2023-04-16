@@ -49,12 +49,12 @@ class SegmentationDataset(Dataset):
 
         return x, y
     
-    @staticmethod
-    def read_images(inputs, targets, pre_transform):
-        inputs, targets = imread(str(inputs)), imread(str(targets))
-        if pre_transform:
-            inputs, targets = pre_transform(inputs, targets)
-        return inputs, targets
+@staticmethod
+def read_images(inputs, targets, pre_transform):
+    inputs, targets = imread(str(inputs)), imread(str(targets))
+    if pre_transform:
+        inputs, targets = pre_transform(inputs, targets)
+    return inputs, targets
 
 if __name__ == '__main__':
     inputs = ['data/Input/0cdf5b5d0ce1_01.png','data/Input/0cdf5b5d0ce1_02.png']
